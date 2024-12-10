@@ -1,0 +1,73 @@
+import random
+import matplotlib.pyplot as plt
+
+# Mendefinisikan kelas untuk pemain
+class Pemain:
+    def __init__(self, nama):
+        self.nama = nama
+        self.pion = [0, 0, 0, 0]  # Posisi keempat pion (mulai dari rumah)
+        self.jumlah_gerakan = 0
+
+    def lempar_dadu(self):
+        return random.randint(1, 6)
+
+    def gerakkan_pion(self):
+        dadu = self.lempar_dadu()
+        # Pilih pion yang akan digerakkan (hanya pion yang belum di rumah)
+        pion_index = min(range(4), key=lambda i: self.pion[i] if self.pion[i] < 52 else float('inf'))
+        self.pion[pion_index] += dadu
+        self.jumlah_gerakan += 1
+        return dadu
+
+    def cek_menang(self):
+        return all(pion >= 52 for pion in self.pion)
+
+
+# Inisialisasi permainan dengan 2 pemain
+pemain1 = Pemain("Pemain 1")
+pemain2 = Pemain("Pemain 2")
+pemain3 = Pemain("Pemain 3")
+pemain4 = Pemain("Pemain 4")
+
+# Simulasi permainan
+def simulasi_permainan():
+    pemain = [pemain1, pemain2, pemain3, pemain4]
+    pemenang = None
+    gerakan_per_pemain = []
+
+    while not pemenang:
+        for p in pemain:
+            dadu = p.gerakkan_pion()
+            gerakan_per_pemain.append((p.nama, p.pion.copy(), dadu))
+            if p.cek_menang():
+                pemenang = p
+                break
+
+    return pemenang, gerakan_per_pemain
+
+# Menjalankan simulasi
+pemenang, gerakan_per_pemain = simulasi_permainan()
+
+# Menampilkan hasil simulasi
+print(f"{pemenang.nama} memenangkan permainan!")
+print(f"Gerakan setiap pemain:")
+for gerakan in gerakan_per_pemain:
+    print(f"{gerakan[0]}: Posisinya {gerakan[1]} setelah lemparan dadu {gerakan[2]}")
+
+# Visualisasi Grafis
+def tampilkan_grafik(gerakan_per_pemain):
+    plt.figure(figsize=(10, 6))
+    
+    for pemain in [pemain1, pemain2, pemain3, pemain4]:
+        posisi_pion = [gerakan[1][pemain.pion.index(p)] for gerakan in gerakan_per_pemain if gerakan[0] == pemain.nama]
+        plt.plot(range(len(posisi_pion)), posisi_pion, label=pemain.nama)
+
+    plt.title("Simulasi Pergerakan Pion dalam Ludo")
+    plt.xlabel("Jumlah Gerakan")
+    plt.ylabel("Posisi Pion")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+# Menampilkan grafik
+tampilkan_grafik(gerakan_per_pemain)
